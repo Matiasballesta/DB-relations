@@ -36,17 +36,14 @@ let capsEntries = entries.map((entry) => [
 
 sequelize.models = Object.fromEntries(capsEntries);
 
-const {Person, Movie, Role, PersonRoleMovie} = sequelize.models;
+const {Person, Movie, Role } = sequelize.models;
 
-Person.hasMany(PersonRoleMovie, { foreignKey: 'personId' })
-PersonRoleMovie.belongsTo(Person, { foreignKey: 'personId'})
 
-Movie.hasMany(PersonRoleMovie, { foreignKey: 'movieId' })
-PersonRoleMovie.belongsTo(Movie, { foreignKey: 'movieId'})
+Person.hasMany(Role);
+Role.belongsTo(Person);
 
-Role.hasMany(PersonRoleMovie, { foreignKey: 'roleId' })
-PersonRoleMovie.belongsTo(Role, { foreignKey: 'roleId'})
-
+Movie.hasMany(Role);
+Role.belongsTo(Movie);
 
 
 module.exports = {

@@ -2,30 +2,28 @@ const { Router } = require("express");
 const router = Router();
 const { Op } = require("sequelize");
 
-const { PersonRoleMovie, Movie, Role, Person } = require("../db");
+const { Person, Movie, Role } = require("../db");
 
 router.get("/", async (req, res) => {
   try {
     const { person } = req.query;
     const personData = await Person.findAll({
       where: { name: { [Op.iLike]: `${person}` } },
-      include: [
-        {
-          model: PersonRoleMovie,
-          include: [{ model: Movie }, { model: Role }],
-        },
-      ],
+      include: {
+        model: Role,
+        include: Movie
+      }
     });
-    const personClean = personData.map((data) => {
+    const personCleaner = personData.map((data) => {
       return {
         name: data.name,
         lastname: data.lastname,
         age: data.age,
-        movie: data.personRoleMovies.map((e) => e.movie.title),
-        role: data.personRoleMovies.map((e) => e.role.role),
+        movie: data.roles.map((e) => e.movie.title),
+        role: data.roles.map((e) => e.role),
       };
     });
-    res.send(personClean);
+    res.send(personCleaner);
   } catch (e) {
     console.log(e);
   }
@@ -38,54 +36,42 @@ module.exports = router;
 
  [
   {
-      "id": 2,
+      "id": 1,
       "name": "Matias",
       "lastname": "Ballesta",
-      "age": 1993,
-      "personRoleMovies": [
+      "age": 28,
+      "roles": [
           {
-              "id": 3,
-              "personId": 2,
+              "id": 1,
+              "role": "Actor",
+              "personId": 1,
               "movieId": 1,
-              "roleId": 3,
               "movie": {
                   "id": 1,
+                  "title": "Rambo",
+                  "year": 2001
+              }
+          },
+          {
+              "id": 2,
+              "role": "Director",
+              "personId": 1,
+              "movieId": 1,
+              "movie": {
+                  "id": 1,
+                  "title": "Rambo",
+                  "year": 2001
+              }
+          },
+          {
+              "id": 3,
+              "role": "Actor",
+              "personId": 1,
+              "movieId": 3,
+              "movie": {
+                  "id": 3,
                   "title": "Batman",
-                  "year": 2006
-              },
-              "role": {
-                  "id": 3,
-                  "role": "Actor"
-              }
-          },
-          {
-              "id": 4,
-              "personId": 2,
-              "movieId": 2,
-              "roleId": 5,
-              "movie": {
-                  "id": 2,
-                  "title": "Spiderman",
-                  "year": 2004
-              },
-              "role": {
-                  "id": 5,
-                  "role": "Productor"
-              }
-          },
-          {
-              "id": 5,
-              "personId": 2,
-              "movieId": 2,
-              "roleId": 3,
-              "movie": {
-                  "id": 2,
-                  "title": "Spiderman",
-                  "year": 2004
-              },
-              "role": {
-                  "id": 3,
-                  "role": "Actor"
+                  "year": 2003
               }
           }
       ]
@@ -97,15 +83,15 @@ module.exports = router;
   {
       "name": "Matias",
       "lastname": "Ballesta",
-      "age": 1993,
+      "age": 28,
       "movie": [
-          "Batman",
-          "Spiderman",
-          "Spiderman"
+          "Rambo",
+          "Rambo",
+          "Batman"
       ],
       "role": [
           "Actor",
-          "Productor",
+          "Director",
           "Actor"
       ]
   }

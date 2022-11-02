@@ -2,30 +2,29 @@ const { Router } = require("express");
 const router = Router();
 const { Op } = require("sequelize");
 
-const { PersonRoleMovie, Movie, Role, Person } = require("../db");
+const { Movie, Role, Person } = require("../db");
+
 
 router.get("/", async (req, res) => {
   try {
     const { movie } = req.query;
     const movieData = await Movie.findAll({
       where: { title: { [Op.iLike]: `%${movie}%` } },
-      include: [
-        {
-          model: PersonRoleMovie,
-          include: [{ model: Person }, { model: Role }],
-        },
-      ],
+      include: {
+        model: Role,
+        include: Person
+      }
     });
-    const movieClean = movieData.map((data) => {
+    const movieCleaner = movieData.map((data) => {
       return {
         title: data.title,
         yearMovie: data.year,
-        personName: data.personRoleMovies.map((e) => e.person.name),
-        personLastname: data.personRoleMovies.map((e) => e.person.lastname),
-        role: data.personRoleMovies.map((e) => e.role.role),
+        personName: data.roles.map((e) => e.person.name),
+        personLastname: data.roles.map((e) => e.person.lastname),
+        role: data.roles.map((e) => e.role),
       };
     });
-    res.send(movieClean);
+    res.send(movieCleaner);
   } catch (e) {
     console.log(e);
   }
@@ -34,105 +33,73 @@ router.get("/", async (req, res) => {
 module.exports = router;
 
 /* Realizando la consulta sin limpiar la data.
- http://localhost:3000/movie?movie=Batman  */
-
+ http://localhost:3000/movie?movie=Rambo  */
  [
     {
         "id": 1,
-        "title": "Batman",
-        "year": 2006,
-        "personRoleMovies": [
+        "title": "Rambo",
+        "year": 2001,
+        "roles": [
             {
                 "id": 1,
+                "role": "Actor",
                 "personId": 1,
                 "movieId": 1,
-                "roleId": 1,
                 "person": {
                     "id": 1,
-                    "name": "Jose",
-                    "lastname": "Perez",
-                    "age": 2001
-                },
-                "role": {
-                    "id": 1,
-                    "role": "Actor"
+                    "name": "Matias",
+                    "lastname": "Ballesta",
+                    "age": 28
                 }
             },
             {
                 "id": 2,
+                "role": "Director",
                 "personId": 1,
                 "movieId": 1,
-                "roleId": 2,
                 "person": {
                     "id": 1,
-                    "name": "Jose",
-                    "lastname": "Perez",
-                    "age": 2001
-                },
-                "role": {
-                    "id": 2,
-                    "role": "Director"
-                }
-            },
-            {
-                "id": 3,
-                "personId": 2,
-                "movieId": 1,
-                "roleId": 3,
-                "person": {
-                    "id": 2,
                     "name": "Matias",
                     "lastname": "Ballesta",
-                    "age": 1993
-                },
-                "role": {
-                    "id": 3,
-                    "role": "Actor"
+                    "age": 28
                 }
             },
             {
                 "id": 6,
+                "role": "Actor",
                 "personId": 2,
                 "movieId": 1,
-                "roleId": 5,
                 "person": {
                     "id": 2,
-                    "name": "Matias",
-                    "lastname": "Ballesta",
-                    "age": 1993
-                },
-                "role": {
-                    "id": 5,
-                    "role": "Productor"
+                    "name": "Valentin",
+                    "lastname": "Dizeo",
+                    "age": 25
                 }
             }
         ]
     }
 ]
 
-//Realizando la consulta con la data mas clean!
+//Realizando la consulta con la data mas limpia!
 
 [
     {
-        "title": "Batman",
-        "yearMovie": 2006,
+        "title": "Rambo",
+        "yearMovie": 2001,
         "personName": [
-            "Jose",
-            "Jose",
             "Matias",
-            "Matias"
+            "Matias",
+            "Valentin"
         ],
         "personLastname": [
-            "Perez",
-            "Perez",
             "Ballesta",
-            "Ballesta"
+            "Ballesta",
+            "Dizeo"
         ],
         "role": [
             "Actor",
             "Director",
-            "Actor",
-            "Productor"
+            "Actor"
         ]
     }
 ]
