@@ -12,6 +12,8 @@ module.exports = (sequelize) => {
       },
       role: {
         type: DataTypes.STRING,
+        //Tambien se podria poner un ENUM con solo los campos a esperar como Actor, productor..
+        //type: DataTypes.ENUM('Actor', 'Productor', 'Director','Casting' etc)
         allowNull: false,
       },
     },
