@@ -1,33 +1,10 @@
 const { Router } = require("express");
 const router = Router();
-const { Op } = require("sequelize");
+const {personController} = require('../controllers/personController')
 
-const { Person, Movie, Role } = require("../db");
 
-router.get("/", async (req, res) => {
-  try {
-    const { person } = req.query;
-    const personData = await Person.findAll({
-      where: { name: { [Op.iLike]: `${person}` } },
-      include: {
-        model: Role,
-        include: Movie
-      }
-    });
-    const personCleaner = personData.map((data) => {
-      return {
-        name: data.name,
-        lastname: data.lastname,
-        age: data.age,
-        movie: data.roles.map((e) => e.movie.title),
-        role: data.roles.map((e) => e.role),
-      };
-    });
-    res.send(personCleaner);
-  } catch (e) {
-    console.log(e);
-  }
-});
+router.get("/", personController);
+
 
 module.exports = router;
 
