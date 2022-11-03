@@ -45,6 +45,12 @@ Role.belongsTo(Person);
 Movie.hasMany(Role);
 Role.belongsTo(Movie);
 
+/*
+Just a comment!
+Person.hasMany(Role) and Movie.hasMany(Role) will automatically
+add the personId and movieId columns to Role, respectively.
+*/
+
 
 module.exports = {
    ...sequelize.models,
